@@ -1,15 +1,19 @@
 package com.example.jsontesting;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,13 +23,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences sharedpreferences = getSharedPreferences("APP", this.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+
+        boolean isFirst = sharedpreferences.getBoolean("isfirstLaunch", true);
+
+        if (isFirst){
+            DisplayIntroActivity();
+
+            editor.putBoolean("isfirstLaunch",false);
+            editor.apply();
+        } else {
+            Toast.makeText(this, "WELCOMEBACK", Toast.LENGTH_SHORT).show();
+            editor.putBoolean("isfirstLaunch",true);
+
+            editor.apply();
+        }
+
+
 
     }
 
+
+    void DisplayIntroActivity(){
+
+
+    }
+
+
+
     public void ParseJSON(View view) {
         try {
-            parseJsonComplex();
-        } catch (JSONException e) {
+            ParseWithGSON();
+        } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "JSON ERROR", Toast.LENGTH_SHORT).show();
         }
@@ -110,6 +140,18 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+
+    }
+
+
+    void ParseWithGSON (){
+        String JSONstring = "{\"temp\":7,\"pressure\":1012,\"humidity\":81,\"temp_min\":5,\"temp_max\":8}";
+
+        Gson gson = new GsonBuilder().create();
+        Weather w = gson.fromJson(JSONstring,Weather.class);
+        String wString = gson.toJson(w);
+        Log.d("GSONtesting", "ParseWithGSON: "+ w.toString());
+        Log.d("GSONtesting", "ParseWithGSON: "+ wString);
 
     }
 
